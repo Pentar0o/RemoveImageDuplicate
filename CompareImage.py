@@ -9,6 +9,8 @@ import numpy as np
 from PIL import Image
 from SSIM_PIL import compare_ssim
 
+from progress.bar import Bar
+
 def mse(Image1, Image2):
 	err = np.sum((Image1.astype("float") - Image2.astype("float")) ** 2)
 	err /= float(Image1.shape[0] * Image1.shape[1])
@@ -71,7 +73,7 @@ def CompareImage(image1, image2, tabfile2keep, tabfile2delete):
 		if image1 not in tabfile2delete :
 			tabfile2keep.append(image1)
 	
-	print('Temps de Traitement : %d ms'%((time.time()-t1)*1000))
+	#print('Temps de Traitement : %d ms'%((time.time()-t1)*1000))
 
 
 	return tabfile2keep, tabfile2delete
@@ -83,11 +85,16 @@ def main(repertoire):
 
 	images_dir = os.path.join(repertoire)
 	images = glob.glob(images_dir + "/*.jpg")
+
+	bar = Bar('Traitement', max=(images.__len__()))
 	
 	for filename1 in images:
 		for filename2 in images:
 			if (filename1 != filename2):
 				tabfile2keep, tabfile2delete = CompareImage(filename1, filename2, tabfile2keep, tabfile2delete)
+		bar.next()
+
+	bar.finish()
 	
 	tabfile2keep.sort()
 	tabfile2delete.sort()
