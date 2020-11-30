@@ -39,6 +39,9 @@ def CompareImage(image1, image2, tabfile2keep, tabfile2delete):
 	#print("Taille Image 1 : %s / %s"%(w1,h1))
 	#print("Taille Image 2 : %s / %s"%(w2,h2))
 
+	
+	t1 = time.time()
+
 	#Resize de l'image 2 à la taille de l'image 1 pour pouvoir les comparer
 	size = (w,h)
 	Image2 = Image2.resize(size)
@@ -48,24 +51,27 @@ def CompareImage(image1, image2, tabfile2keep, tabfile2delete):
 
 	valuemse = mse(npaim1, npaim2)
 	valuessim = compare_ssim(Image1, Image2)
-
-	if (valuemse < 14000):
+	
+	
+	if (valuemse < 15000 and valuessim > 0.15):
 		#On parse pour enlever le répertoire du nom du fichier
-		nomfichier1 = os.path.split(image1)
-		nomfichier2 = os.path.split(image2)
+		#nomfichier1 = os.path.split(image1)
+		#nomfichier2 = os.path.split(image2)
 
-		print("Comparaison des Images %s et %s" %(nomfichier1[1], nomfichier2[1]))
-		print("MSE : %.2f" %valuemse)
-		print("SSIM : %.2f" %valuessim)
-		
-		#On stock les images que l'on a traité et celles que l'on doit effacer
-		if image1 not in tabfile2keep :
-			if image1 not in tabfile2delete :
-				tabfile2keep.append(image1)
+		#print("Comparaison des Images %s et %s" %(nomfichier1[1], nomfichier2[1]))
+		#print("MSE : %.2f" %valuemse)
+		#print("SSIM : %.2f" %valuessim)
 
 		if image2 not in tabfile2delete :
 			if image2 not in tabfile2keep :
 				tabfile2delete.append(image2)
+
+	#On stock les images que l'on a traité et celles que l'on doit effacer
+	if image1 not in tabfile2keep :
+		if image1 not in tabfile2delete :
+			tabfile2keep.append(image1)
+	
+	print('Temps de Traitement : %d ms'%((time.time()-t1)*1000))
 
 
 	return tabfile2keep, tabfile2delete
@@ -85,8 +91,8 @@ def main(repertoire):
 	
 	tabfile2keep.sort()
 	tabfile2delete.sort()
-	print("Fichier à Garder : %s" %tabfile2keep)
-	print("Fichier à Delete : %s" %tabfile2delete)
+	print("Fichier à Garder : %s" %len(tabfile2keep))
+	print("Fichier à Delete : %s" %len(tabfile2delete))
 
 	#On delete les images semblables
 	for fichier in tabfile2delete:
